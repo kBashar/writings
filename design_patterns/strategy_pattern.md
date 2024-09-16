@@ -1,81 +1,81 @@
 ## Strategy Pattern  
 
-Strategy pattern suggests a simple but very useful paradigm to design systems where there are multiple ways/algorithms/strategies to accomplish a goal. For example, a payment processor can take payment in multiple ways e.g. using cards, MFS, cryptocurrency or through bank drafts. 
-Strategy pattern prescribes, to encapsulate these algorithms into a common interface. And this interface is then used by the client, the payment processor in our above example, when doing the actual work instead of using a specific algorithm. This gives the client the flexibility to  chose any algorithm at the runtime.
+Strategy pattern suggests a simple but very useful paradigm to design OOP systems where there are multiple algorithms/strategies to do a task. The strategy pattern prescribes encapsulating algorithms into a common interface and use that interface to use those algorithms. This gives the client (the part of the code that use the algorithms) the flexibility to  choose any algorithm at runtime.
 
-Lets take a look at some examples. For me examples are doorway from knowledge to intuition. Hope this helps. 
+Let's think of the map app we all have in our phones. Users can find routes from place A to place B through the map, also the app gives us couple of possible modes of trasportations e.g walking, Cycling, Bike riding, Public Bus or Cars and the time they will take to go from A to B. This feature will be a nice candidate to be implemented using strategy pattern. Where mode of transportation are different algorithms/strategies and a common interface will provide with how much time it will take to go from address A to B. 
 
-We are designing a service for processing Payments for a E-Commerce. User can pay through Visa, Master or Amex cards. So what would the code for payment processing look like?
+Let's take a look at another example. A payment processor in an e-commerce site can take payment in multiple ways e.g. using cards, MFS(Mobile Financial System) or cryptocurrency. Designing this payment processor is a prime candidate for strategy pattern. Here mode of payments will be algorithms the pattern talks about and the client will be the payment processor. 
+
+Examples with codes are even better. Here I will use python/psudo-code but this pattern or any design patter for that matter is applicable and implementable in all OOP supported languages. 
+So, We are designing a service for processing Payments for an E-Commerce. For started, users can pay through Visa and Master cards. So what would the code structure for payment processing look like?
 
 ```python
 
-def visa_pay(self, amount):
+def visa_pay(self, amount):  # visa card related processing
   print("Doing visa card related processing")
-  print(f"Receiving a payment through Visa of amount {amount}")
+  print(f"Receiving a payment through Visa card of amount {amount}")
 
-def master_pay(self, amount):
+def master_pay(self, amount):   # master card related processing
   print("Doing Master card related processing")
-  print(f"Receiving a payment through Master of amount {amount}")
+  print(f"Receiving a payment through Master card of amount {amount}")
 
-def payment_process(payment_type: str, amount: float):
+def payment_processor(payment_type: str, amount: float):  # this is our payment processor
   if payment_type == "visa":
     visa_pay(amount)
   else payment_type == "master":
     master_pay(amount)
 ```
 
-Simple, Right? Now what if as our e-commerce gets more traction and business people wants to open the platform to more people, we are to Amex(American Express) based payment services in our payment processor. What can we do? We can add another function `amex_pay` for amex card processing and change the `payment_process` a bit to make room for the new payment method. Not much of a headache(at least for me :D, I am just printing strings to take payments. Don't you wish money was this easy, :P!).
+Simple, Right? Now what if as our e-commerce gets more traction, more and more users wants to make payment with their American Express(Amex) cards. What can we do? We can add another function `amex_pay` for amex card processing and change the `payment_processor` a bit to make room for the new payment mode. Not much of a headache(at least for me :D, I am just printing strings to take payments. Don't you wish money was this easy, :P!).
 
 
 ```python
 
-def visa_pay(self, amount):
-  print("Doing visa card related processing")
-  print(f"Receiving a payment through Visa of amount {amount}")
-
-def master_pay(self, amount):
-  print("Doing Master card related processing")
-  print(f"Receiving a payment through Master of amount {amount}")
+...
 
 def amex_pay(self, amount):
   print("Doing Amex card related processing")
-  print(f"Receiving a payment through Amex of amount {amount}")
+  print(f"Receiving a payment through Amex card of amount {amount}")
 
 
-def payment_process(payment_type: str, amount: float):
+def payment_processor(payment_type: str, amount: float):
   if payment_type == "visa":
     visa_pay(amount)
   elif payment_type == "master":
     master_pay(amount)
-  else payment_type == "amex":
+  elif payment_type == "amex":
     amex_pay(amount)
 ```
-No matter how simple this looks, one thing is clear, every time we are to add a new payment method we need to change the `payment_process` method beside adding the code/functionality of the new payment method. This is not very convenient, nor does it make easy to extend. Our `payment_process` code is totally dependent on the individual payment methods.
 
-**Strategy Pattern** suggests a better way to organize our code to be more extensible and portable. The Suggestion is, the payment methods will have a common interface and the payment processor `payment_process` will code to that interface instead of individual payment method's functions.
+No matter how simple this looks, one thing is clear, every time we add support for a new payment mode we have to change the `payment_processor` method beside adding the code/functionality of the new payment mode. This is not very convenient, nor does it make easy to extend. Our `payment_processor` code is totally dependent on the individual payment modes, even though all of the payment mode related functions takes same arguments and maybe returns same data too, not much different from each other.
 
-Let's try it. But before that some python language pre-requisites. 
+In cases such as this, **Strategy Pattern** suggests a better way to organize our code and make it more extensible and portable. The suggestion is, payment modes will have a common interface and the payment processor `payment_processor` will code to that interface instead of individual payment mode functions. So we can add new new payment modes later without changing any code in `payment_processor` part. Our new added payment modes will be supported by the `payment_processor` right of the bat. 
 
-Python has no concept of Interface, as we see in Java or other OOP languages. What an interface do is provide a contract/blueprint that implementing classes must implement and thus all classes that implement the interface methods will have same API/interface. While Java supports single inheritance, it supports multiple interface implementations.
-Abstract classes in python gives us a way to have this same facility. We declare an abstract class with abstract methods. And all concrete classes(not abstract classes themselves) that will be subclassed/derived from this abstract class should implement those abstract methods. 
-Interesting thing is as python supports Multi inheritance a python class can implement multiple abstract classes. So, we have almost all of the Java like interface in Python.
+Let's try it out. But before that some python language pre-requisites. if you are familiar with python Abstract class system, you may skip the next section and jump to the code right away.
 
-One last point, to get abstract class we will need to use `abc` module. This modules supplies two most important artifacts we will use, `ABC` and `abstractmethod`. `ABC` is the class that all abstract class must inherit and `abstractmethod` is a decorator that all abstract methods must adorn themselves with. 
+### Abstract Class in Python
+An interface provides a blueprint through abstract functions, and interface implementing classes must make concrete implementation of those abstract functions and thus all classes that implement the same interface will have the same API(a fancy way to say it will have same methods/functions available to call). 
+Now Python has no concept of Interface, as we see in Java or other OOP languages, abstract classes in python give us a way to have this same facility. We declare an abstract class with abstract methods. And all concrete classes that are inherited from the abstract class will implement those abstract methods. And thus those classes will have the same methods. 
 
+One last point, to get abstract class we will need to use `abc` module from python standard library. This module supplies two important components we will use, `ABC` and `abstractmethod`. `ABC` is the class that all abstract classes themselves must inherit and `abstractmethod` is a decorator that all abstract methods must adorn themselves with. 
+
+### Code Example of Strategy patter
+
+Now lets hop into the code-wagon.
 
 ```python
 from abc import ABC, abstractmethod
 
-# our interface
+# our interface made out of an abstract class.
 class PaymentInterface(ABC):
 
-  # all payment methods will implement this method
+  # all payment mode will implement this abstract method
   @abstractmethod
   def pay(self, amount):
     pass
 
 
-class VisaPayment(PaymentInterface):
+class VisaPayment(PaymentInterface):   # inherits the PaymentInterface and implements the `pay` method
 
   def pay(self, amount):
     print("Doing visa card related processing")
@@ -97,10 +97,29 @@ class AmexPayment(PaymentInterface):
 
 
 
-def payment_process(payment_method: PaymentInterface, amount: float):
+def payment_processor(payment_method: PaymentInterface, amount: float):
   payment_method.pay(amount)
 
 ```
 
 
-Nice, our payment_process looks clean and very unlikely to need change if we add new payment methods, say we want to add a payment method for Bkash(MFS), we would only need to add the bkash payment processing code in the bkash related class, No change in `payment_process` function. This is definitely neat. This flexibility goes a long way when our applications are complex and a group of algorithms/strategies(in our case payment methods) is used in different areas of the application. 
+Nice, our payment_processor looks clean and very unlikely to need change if we add new payment modes, say we want to add a payment mode for Bkash(MFS), we would only need to add the bkash payment processing code in the bkash related class, No change in `payment_processor` function. This is definitely neat and a win for code maintainability.
+
+### When to use Strategy Pattern  
+
+* You've got a bunch of related algorithms, and you want to switch between them dynamically.
+* You want to avoid a monster "if-elif-else" chain in your code. Trust me, future you will thank present you for not creating that mess.
+
+Remember, design patterns are tools, not rules. Use only when you have time and reason to do so.
+
+### Skip the Strategy Pattern when:
+
+* You've only got a couple of algorithms that rarely change.
+* The algorithms and their context are super simple. Sometimes, a simple if-else is all you need. Don't overcomplicate things!
+
+### Wrapping Up  
+
+Strategy pattern is a cool code-toolkit, gives us
+
+* **Flexibility:** Let us add new strategies or algorithms without changing or impacting previous client codes.
+* **Cleaner Code:** Makes code clean, no more long list of `if-else-if`.
