@@ -59,7 +59,7 @@ Now Python has no concept of Interface, as we see in Java or other OOP languages
 
 One last point, to get abstract class we will need to use `abc` module from python standard library. This module supplies two important components we will use, `ABC` and `abstractmethod`. `ABC` is the class that all abstract classes themselves must inherit and `abstractmethod` is a decorator that all abstract methods must adorn themselves with. 
 
-### Code Example of Strategy patter
+### Code Example of Strategy pattern
 
 Now lets hop into the code-wagon.
 
