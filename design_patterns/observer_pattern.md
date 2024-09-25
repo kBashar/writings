@@ -27,29 +27,54 @@ Let's take a Smart Door Lock as the Subject and other smart devices as Observers
 
 In this case:
 
-* Smart Door Lock is the Subject.
-* Devices like the Thermostat, Cameras, and Lights are Observers that need to update their behavior based on the door's status.
+* Smart Door Lock is the **Subject**.
+* Devices like the Thermostat, Cameras, and Lights are **Observers** that need to update their behavior based on the door's status.
 
 
 Now that we have built the intuition how the **`observers`** and **`subject`** look like, lets find out how they interact. 
 
 ### How to update Observers on state change of Subject
 
-Question is how do we let **`observers`** know the state of the **`subject`** has changed?
+Question is how do we let **`observers`** know the state of the **`Subject`** has changed?
 
 Do we poll at an interval to check if the object's state has changed or do we push the update to the interested objects whenever there is a change. 
 
-Polling makes sense in some scenario but at most of cases pushing is a better option. Because, imagine parts of our application continuously polling other parts of the application for data change where data changes rarley or in irregualr interval. This might be potential waste of our resources. Rather a better approch will be **`Subject`** will notify its observers whenever there is a change in its state. 
+Polling makes sense in some scenario but at most of cases pushing is a better option. Because, imagine parts of our application continuously polling other parts of the application for data change where data changes rarley or in irregualr interval. This might be potential waste of our resources. Rather a better approch will be **`Subject`** notifies its observers whenever there is a change in its state. 
 
-Observer pattern mainly suggests us a code organization that let **`Subject`** notify its **`observers`** about state changes without knowing much about the **`observer`** class or its internal. Both **`Subject`** and `Observers` implement certain interfaces and they communicate to each other through those interfaces. Observer patterns UML class diagram will clearify the relation and interaction more. Lets take a look. 
+Observer pattern mainly suggests us a code organization that let **`Subject`** notify its **`Observers`** about state changes without knowing much about the **`Observer`** class or its internals. Both **`Subject`** and **`Observers`** implement certain interfaces and they communicate to each other through those interfaces. 
+
+### Class Diagram
+
+Observer patterns UML class diagram will clearify the relation and interaction more. Lets take a look. 
 
 
 ![Observer pattern UML class diagram][def]
 
 
+We have two interfaces **Subject** and **Observer**. Other classes are concrete implementation of these Interfaces e.g. ConcreteSubject and ConcreteObserver. While Interfaces will provide us with a blueprint, concrete implementation of these interfaces will actually implement the methods of the Interface.
+
+**Subject** has one attribute and three methods. While the attribute **`observers`** is a list of **Observer** instances, the methods do followings
+1. **`addObserver`**: let an observer register itself for notifications from the **Subject**. After an **Observer** being added to the subjects observer list it will be notfied on the state changes of the **Subject**.
+2. **`removeObserver`**: if the observer does not want to listen to the changes of the **Subject**, it can remove itself from the list of observers and it will not be bothered anymore.
+3. **`notifyObservers`**: the function that will do the work of notifying the subject's **observers**.
+
+Any and all classes that want to act as a **Subject** will implement above methods. 
+
+Now lets consider the **Observer** interface. It has one method **`update`**. Concrete observer classes will have to implement this method.
+
+1. **update**: this method will be called from the **Subject**'s **`notifyObservers`** method to let the observer know of a data/state change in **Subject**. This is our channel of notification. More 
+
+
 ### Example Code for Observer pattern
+
+
+
+
 
 ### Comparative discussion on pub-sub tools and observer patterns
 
 
 [def]: ./imgs/observer_class_diagram.png
+
+
+
