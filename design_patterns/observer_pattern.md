@@ -21,14 +21,13 @@ Imagine a Smart Home system where different smart devices (thermostats, security
 
 Let's take a Smart Door Lock as the Subject and other smart devices as Observers. Whenever the door is locked or unlocked, certain devices are interested in this change:
 
-* The Thermostat may want to adjust temperature settings when people enter or leave the home.
 * Security Cameras might activate when the door is unlocked.
 * Smart Lights could turn off automatically when the door is locked and no one is home.
 
 In this case:
 
 * Smart Door Lock is the **Subject**.
-* Devices like the Thermostat, Cameras, and Lights are **Observers** that need to update their behavior based on the door's status.
+* Devices like the Cameras, and Lights are **Observers** that need to update their behavior based on the door's status.
 
 
 Now that we have built the intuition how the **`observers`** and **`subject`** look like, lets find out how they interact. 
