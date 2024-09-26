@@ -66,9 +66,78 @@ Now lets consider the **Observer** interface. It has one method **`update`**. Co
 
 ### Example Code for Observer pattern
 
+So, our example will be in python. But python doesn't have the idea of Interface. But we can achieve the same using its Abstract Class concept. A brief on abstract class is [here]() and you may check this. We will skip Abstract class related discussion here. 
+
+So, first we will design our **`Subject`** and **`Observer`** Interfaces aka Abstract classes. 
+
+```python 
+from abc import ABC, abstractmethod
+
+class Observer(ABC):
+
+    @abstractmethod
+    def update(self):
+        pass
+
+class Subject(ABC):
+
+    @abstractmethod
+    def addObserver(self, observer: Observer):
+        pass
+
+    @abstractmethod
+    def removeObserver(self, observer: Observer):
+        pass
+
+    @abstractmethod
+    def notifyObservers(self):
+        pass
+
+```
+These classes are blueprint for our concrete classes. All abstract methods will be implemented there. 
+
+So, our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
+
+From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. 
+
+First let's take a look at our concrete subject **`Room`** class. 
+
+```python
+
+from subject import Subject
+from observer import Observer
 
 
+class Room(Subject):
 
+    def __init__(self):
+        self._observers = list()  # initialize the observers list
+
+        self._number_of_persons = 0  # initialize the room with no person inside the room.
+        print("Initiated an empty room!")
+
+    def addObserver(self, observer: Observer):  # adds observer to the list
+        self._observers.append(observer)
+
+    def removeObserver(self, observer: Observer): # removes observer from the list
+        self._observers.remove(observer)
+
+    def notifyObservers(self):  # 
+        for observer in self._observers:
+            observer.update()
+
+    # class specific methods
+
+    def setPerson(self, person: int):
+        self._number_of_persons = person
+
+        # state has changed lets notify the observers
+        self.notifyObservers()
+
+    def getPerson(self):
+        return self._number_of_persons
+
+```
 
 ### Comparative discussion on pub-sub tools and observer patterns
 
