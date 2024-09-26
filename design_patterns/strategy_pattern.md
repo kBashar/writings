@@ -105,6 +105,26 @@ def payment_processor(payment_method: PaymentInterface, amount: float):
 
 Nice, our payment_processor looks clean and very unlikely to need change if we add new payment modes, say we want to add a payment mode for Bkash(MFS), we would only need to add the bkash payment processing code in the bkash related class, No change in `payment_processor` function. This is definitely neat and a win for code maintainability.
 
+How do we map names to actual PaymentMethod at runtime? There are several ways to accomplish this, one example could be as following 
+
+```python
+class PaymentService:
+    def __init__(self):
+        self.payment_methods = {
+            "visa": VisaPayment(),
+            "master": MasterPayment(),
+            "amex": AmexPayment()
+        }
+
+    def process_payment(self, method: str, amount: float):
+        if method not in self.payment_methods:
+            raise ValueError(f"Unsupported payment method: {method}")
+        
+        payment_method = self.payment_methods[method]
+        payment_processor(payment_method, amount)
+```
+
+
 ### When to use Strategy Pattern  
 
 * You've got a bunch of related algorithms, and you want to switch between them dynamically.
