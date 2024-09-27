@@ -123,7 +123,7 @@ class PaymentService:
         payment_method = self.payment_methods[method]
         payment_processor(payment_method, amount)
 ```
-
+In above example, the class initializes a dictionary payment_methods that maps payment method names to their corresponding PaymentInterface implementations. When there is a new Payment method added we will need to add the corresponding PaymentInterface class and an entry in the mapper.
 
 ### When to use Strategy Pattern  
 
