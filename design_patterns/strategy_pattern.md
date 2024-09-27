@@ -124,6 +124,7 @@ class PaymentService:
         payment_processor(payment_method, amount)
 ```
 In above example, the class initializes a dictionary payment_methods that maps payment method names to their corresponding PaymentInterface implementations. When there is a new Payment method added we will need to add the corresponding PaymentInterface class and an entry in the mapper.
+This mapper part is totally dependent on the context of implementation.
 
 ### When to use Strategy Pattern  
 
