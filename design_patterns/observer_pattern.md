@@ -66,18 +66,20 @@ Now lets consider the **Observer** interface. It has one method **`update`**. Co
 
 ### Example Code for Observer pattern
 
-So, our example will be in python. But python doesn't have the idea of Interface. But we can achieve the same using its Abstract Class concept. A brief on abstract class is [here]() and you may check this. We will skip Abstract class related discussion here. 
+So, our examples will be in python. Python doesn't have the idea of Interface. We can achieve the same using its Abstract Class concept. A brief on abstract class is [here]() and you may check this. We will skip Abstract class related discussion here. 
 
 So, first we will design our **`Subject`** and **`Observer`** Interfaces aka Abstract classes. 
 
 ```python 
 from abc import ABC, abstractmethod
 
+
 class Observer(ABC):
 
     @abstractmethod
     def update(self):
         pass
+
 
 class Subject(ABC):
 
@@ -96,17 +98,13 @@ class Subject(ABC):
 ```
 These classes are blueprint for our concrete classes. All abstract methods will be implemented there. 
 
-So, our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
+Our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
 
-From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. 
+From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. Whenever state of the room changes, light and camera will be notified. 
 
-First let's take a look at our concrete subject **`Room`** class. 
+Let's implement these class in accordance with the abstract classes we have defined earlier. The implementation is kept simple and comments are added. Hope this will be easy to follow.
 
 ```python
-
-from subject import Subject
-from observer import Observer
-
 
 class Room(Subject):
 
@@ -122,7 +120,7 @@ class Room(Subject):
     def removeObserver(self, observer: Observer): # removes observer from the list
         self._observers.remove(observer)
 
-    def notifyObservers(self):  # 
+    def notifyObservers(self):  # iterate through all listed observers and call their update method to notify them. 
         for observer in self._observers:
             observer.update()
 
@@ -139,7 +137,89 @@ class Room(Subject):
 
 ```
 
-### Comparative discussion on pub-sub tools and observer patterns
+Apart from implementing 3 methods (`addObserver`, `removeObserver` and `notifyObservers`) from the **`Subject`** abstract class it has two extra methods i.e. `setPerson` and `getPerson`. These methods let outside code update or fetch the state of the **`Room`**. These are not mandatory for the pattern but necessary for the class to function in our context.
+
+
+Now let's code observers. We have two observers `Light` and `Camera` classes, that will need to first register themselves to the Room subject and implement the **`update`** method logic to response to the change in state of the room. 
+
+```python
+class Light(Observer):
+
+    def __init__(self, room: Room):
+        print("Initializing Lights!")
+        self._room = room
+
+        # register itself for door state change observation
+        self._room.addObserver(self)
+
+    def update(self):
+
+        # state of the room has changed
+        number_of_persons = self._room.getPerson()
+
+        # take some actions based on changed states
+        if number_of_persons == 0:
+            print(f"Light: Shutting down. {number_of_persons} persons in the room.")
+        else:
+            print(f"Light: Keep running. {number_of_persons} persons in the room.")
+```
+
+
+```python
+class SecurityCamera(Observer):
+    def __init__(self, room: Room):
+        print("Initializing Security Camera!")
+        self._room = room
+
+        # register itself for door state change observation
+        self._room.addObserver(self)
+
+    def update(self):
+        # state of the room has changed
+        number_of_persons = self._room.getPerson()
+
+        # take some actions based on changed states
+        if number_of_persons == 0:
+            print(f"Camera: Shutting down. {number_of_persons} persons in the room.")
+        else:
+            print(f"Camera: Keep running. {number_of_persons} persons in the room.")
+```  
+
+Now lets add the calling code. For demonastration purpose we will put this code in main calling thread. 
+First we initialize the **`Room`** instance and with that instance initialize the **`Light`** and **`SecurityCamera`** instances. To update the the number of persons in the room we call `room.setState()` method and in turn this will notify and update the state of `light` and `camera`. 
+
+```python
+
+if __name__ == "__main__":
+    room = Room()
+
+    light = Light(room)
+    camera = SecurityCamera(room)
+
+    room.setPerson(1)
+    room.setPerson(0)
+    room.setPerson(5)
+    room.setPerson(2)
+
+```
+
+Upon running the code output will be like following
+
+```
+Initiated an empty room!
+Initializing Lights!
+Initializing Security Camera!
+Light: Keep running. 1 persons in the room.
+Camera: Keep running. 1 persons in the room.
+Light: Shutting down. 0 persons in the room.
+Camera: Shutting down. 0 persons in the room.
+Light: Keep running. 5 persons in the room.
+Camera: Keep running. 5 persons in the room.
+Light: Keep running. 2 persons in the room.
+Camera: Keep running. 2 persons in the room.
+```
+
+Full code is available here in [this github repo](https://github.com/kBashar/writings/tree/main/design_patterns/observer_pattern).
 
 
 [def]: ./imgs/observer_class_diagram.png
