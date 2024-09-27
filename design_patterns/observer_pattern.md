@@ -1,9 +1,11 @@
+# Observer pattern with Python
+
 It is a common scenario, Where in a system one object changes and other objects are interested to know about that change. Examples are avadant in software systems. 
 For our ease of discussion let's name these objects first. Objects that are interested to know about the change are called `observers` and interesting objects can be called `Observable`. In books and literature about design patterns this `observable` is also called `subject`. So, `Observers` observe the change of state in `Subject`. We can see this is an one-to-many relation, where subject's change is propagated to many observers. 
 
 Lets study some example scenario where we are most likely to use the observer pattern. 
 
-### Example Scenarios
+## Example Scenarios
 
  For example, applications now have at least three choices in application theme change plane, "Light", "Dark" and "System". If an application has its theme set to `system` it would definitly like to know when user changes the theme in host(where the application lives on) operating system. 
  I personally prefer to select `system` as theme in applications, to get an uniform UX across apps. So, when I change the theme from OS settings, definitly most of my applications would like to know that. 
@@ -32,7 +34,7 @@ In this case:
 
 Now that we have built the intuition how the **`observers`** and **`subject`** look like, lets find out how they interact. 
 
-### How to update Observers on state change of Subject
+## How to update Observers on state change of Subject
 
 Question is how do we let **`observers`** know the state of the **`Subject`** has changed?
 
@@ -42,7 +44,7 @@ Polling makes sense in some scenario but at most of cases pushing is a better op
 
 Observer pattern mainly suggests us a code organization that let **`Subject`** notify its **`Observers`** about state changes without knowing much about the **`Observer`** class or its internals. Both **`Subject`** and **`Observers`** implement certain interfaces and they communicate to each other through those interfaces. 
 
-### Class Diagram
+## Class Diagram
 
 Observer patterns UML class diagram will clearify the relation and interaction more. Lets take a look. 
 
@@ -64,10 +66,16 @@ Now lets consider the **Observer** interface. It has one method **`update`**. Co
 1. **update**: this method will be called from the **Subject**'s **`notifyObservers`** method to let the observer know of a data/state change in **Subject**. This is our channel of notification. More 
 
 
-### Example Code for Observer pattern
+## Example Code for Observer pattern
+
+Our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
+
+From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. Whenever state of the room changes, light and camera will be notified. 
+
 
 So, our examples will be in python. Python doesn't have the idea of Interface. We can achieve the same using its Abstract Class concept. A brief on abstract class is [here]() and you may check this. We will skip Abstract class related discussion here. 
 
+### Interfaces
 So, first we will design our **`Subject`** and **`Observer`** Interfaces aka Abstract classes. 
 
 ```python 
@@ -98,9 +106,7 @@ class Subject(ABC):
 ```
 These classes are blueprint for our concrete classes. All abstract methods will be implemented there. 
 
-Our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
-
-From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. Whenever state of the room changes, light and camera will be notified. 
+### Concrete Classes
 
 Let's implement these class in accordance with the abstract classes we have defined earlier. The implementation is kept simple and comments are added. Hope this will be easy to follow.
 
