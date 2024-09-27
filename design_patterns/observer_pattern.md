@@ -1,81 +1,106 @@
 # Observer pattern with Python
 
-It is a common scenario, Where in a system one object changes and other objects are interested to know about that change. Examples are avadant in software systems. 
-For our ease of discussion let's name these objects first. Objects that are interested to know about the change are called `observers` and interesting objects can be called `Observable`. In books and literature about design patterns this `observable` is also called `subject`. So, `Observers` observe the change of state in `Subject`. We can see this is an one-to-many relation, where subject's change is propagated to many observers. 
+Observer pattern or some variations of it ubiquitious. In web frameworks, UI frameworks or event-driven programming systems use this pattern to bridge objects or to establish communication channel between objects. For developers working with these tools, or any developer for that matter, observer pattern could be a great mental model to have to effectivly use and extends these systems. Understanding this pattern helps in implementing reactive and real-time update mechanisms efficiently.
 
-Lets study some example scenario where we are most likely to use the observer pattern. 
+It is a common scenario, Where in a system one object changes and other objects are interested to know about that change. For our ease of discussion let's name these objects first. Objects that are interested to know about the change are called **`observers`** and interesting objects themselves be called **`observable`**. In books and literature on design patterns **`observable`** is also called **`subject`**, we will do the same. So, `Observers` observe the change of state in `Subject`. In terms of relation, this is an one-to-many relation, where subject's change is propagated to many observers. By the way, *change of state* is a fancy way to say some variable's value has changed.
+**Observer pattern** suggests us a robust and flexible architecture to implement this **`Observer`** and **`Subject`** relation.  
+
+Lets study some example scenarios where we are most likely to see the observer pattern. 
 
 ## Example Scenarios
 
- For example, applications now have at least three choices in application theme change plane, "Light", "Dark" and "System". If an application has its theme set to `system` it would definitly like to know when user changes the theme in host(where the application lives on) operating system. 
- I personally prefer to select `system` as theme in applications, to get an uniform UX across apps. So, when I change the theme from OS settings, definitly most of my applications would like to know that. 
+### Theme chooser
 
-If we align this scenario with our previously mentioned nomencuture, here applications that wants to know about theme change are **`observers`** and the host Operating System's theme configuration object is observable or **`Subject`**.
+ Nowadays applications, be it desktop or mobile, have at least three theme options, `Light`, `Dark` and `System`. While `Light` and `Dark` do what they are supposed to do, `System` option dance in rythm with the Operating system, i.e. if I set `Dark` theme in my OS display settings, the application will also use `Dark` theme in its UI.
+ I personally prefer to select `System` as theme in applications to get an uniform UX across apps. So, when I change the theme from OS settings, definitly most of my applications would like to know about that. 
 
-We can think of the OTPs coming to our phone inbox. My bank app sends me an OTP and as soon as the message arrives it collects that OTP on its own and fill up the security code. So definitly my app gets notified by the OS on new message arrival. And this is not special for bank apps, all kinds apps have this nice automated message reading and form fill up feature. 
+If we map this scenario with our previously mentioned terms, here applications that want to know about theme change are **`observers`** and the host operating system's settings is observable or **`Subject`**.
 
-We see interested applications are notified on the state change of the message inbox. Here, message box is **`Subject`** and the apps that are waiting for their own OTP messages are **`observers`**.
+### Phone OTP messages
 
-Now, let's consider an E-Commerce dashboard, It hosts many numbers and matrices indicating the business state at any time in diferent display cards. Among others one display card shows the total Order count, another shows the average expense amount per parchase And maybe another to show the sales trending based on hourly sales data. 
-So, all three of these display cards are dependent on the sales count, i.e. whenever there is a new sale/order the value in these cards should be updated. In line with our two prvious examples, we can say three dsiplay cards **total order count**, **average revenue per order** and **sales stat** are **`observers`** and they are observing **`Subject`** **sales count** object. 
+Think of the OTPs coming to our phone inboxes. I want to da a transaction, my bank app sends me an OTP to verify it's actually me making the request and as soon as the message arrives at my inbox the app collects that OTP on its own and fill up the security code. So definitly my bank app knows new message has arrived. And this is not special for bank apps, all kinds apps have this nice automated message reading and form fill up feature. 
 
-Imagine a Smart Home system where different smart devices (thermostats, security cameras, lights, etc.) interact with a central hub. This hub monitors various environmental factors like motion, temperature, or door locks. We will later code this example to demonastrate the observer design pattern some section below.
+Here, we see interested applications are notified on the state change of the message inbox. Here, message inbox is **`subject`** and the apps that are waiting for their own OTP messages are **`observers`**.
 
-Let's take a Smart Door Lock as the Subject and other smart devices as Observers. Whenever the door is locked or unlocked, certain devices are interested in this change:
+### E-Commerce Dashboard
 
-* Security Cameras might activate when the door is unlocked.
-* Smart Lights could turn off automatically when the door is locked and no one is home.
+Now, let's consider an E-Commerce dashboard, display cards shows numbers and matrices indicating the business state at any time. Maybe one display card shows the total order count, another gives the average expense amount per parchase And maybe another shows the sales trends based on hourly sales data. 
+So, all three of these display cards are dependent on the sales count, i.e. whenever there is a new sale/order the value in these cards should be updated. In line with our two prvious examples, we can say three dsiplay cards **total order count**, **average revenue per order** and **sales trend** are **`observers`** and they are observing **`subject`** **sales count**. 
+
+### Smart Home
+
+This time we will consider a room of a smart home and use this example later in our code example below. 
+
+Imagine, our smart room has different smart devices security cameras, lights, thermostats etc. These devices reacts as the number of persons in the room changes. For demonastration purpose we will consider the simplest version of the interactions. Whenever the number of persons in the room changes, certain devices reacts accordingly:
+
+* Security Cameras activates when there is human presence.
+* Smart Lights turn off automatically when there is no one in the room.
 
 In this case:
 
-* Smart Door Lock is the **Subject**.
-* Devices like the Cameras, and Lights are **Observers** that need to update their behavior based on the door's status.
+* Smart room is the **Subject**.
+* Devices like the Cameras and Lights are **Observers** that need to update their behavior based on the room's status. Here count of persons in the room is a state/attribute of the room.
+
+Now that we have built the intuition how the **`observers`** and **`subject`** look like in a system, lets find out how they interact. 
+
+## How to update observers on state change of subject
+
+Question is how do we let **`observers`** know the state of the **`subject`** has changed?
+
+We have two options,
+
+1. **`observers`** poll the data at an interval to check if the **`subject`**'s state has changed 
+2. **`subject`** push the update to the interested objects(*`observers`**) whenever there is a change in its state. 
+
+Polling makes sense in some scenarios but at most of cases pushing is a better option for us. Let's do a comparison.
+
+### Polling:
+
+**Pros**: Simple to implement, allows observers to check at their own pace.
+**Cons**: Inefficient use of resources, may miss rapid changes and real-time updates.
+
+### Pushing:
+
+**Pros**: Real-time updates, efficient use of resources, ensures all changes are captured.
+**Cons**: More complex to implement. In cases where realtime update is not a concern it has a potential for overwhelming observers with frequent updates.
+
+As our scenarios need a prompt reaction at changes in **`subject`**'s state change pushing notification is a better option for us. 
+And here comes the observer pattern, suggesting us a loosly coupled code organization that let **`subject`** notify its **`observers`** about state changes without knowing much about the **`observer`** class internals. Both **`subject`** and **`observers`** implement certain interfaces and they communicate to each other through those interfaces. 
 
 
-Now that we have built the intuition how the **`observers`** and **`subject`** look like, lets find out how they interact. 
-
-## How to update Observers on state change of Subject
-
-Question is how do we let **`observers`** know the state of the **`Subject`** has changed?
-
-Do we poll at an interval to check if the object's state has changed or do we push the update to the interested objects whenever there is a change. 
-
-Polling makes sense in some scenario but at most of cases pushing is a better option. Because, imagine parts of our application continuously polling other parts of the application for data change where data changes rarley or in irregualr interval. This might be potential waste of our resources. Rather a better approch will be **`Subject`** notifies its observers whenever there is a change in its state. 
-
-Observer pattern mainly suggests us a code organization that let **`Subject`** notify its **`Observers`** about state changes without knowing much about the **`Observer`** class or its internals. Both **`Subject`** and **`Observers`** implement certain interfaces and they communicate to each other through those interfaces. 
+Now is the good time to take a look at the UML class diagram of **observer pattern**.
 
 ## Class Diagram
 
-Observer patterns UML class diagram will clearify the relation and interaction more. Lets take a look. 
-
+Observer patterns UML class diagram will clearify the relation and interaction between **`subject`** and **`observers`** more. Lets take a look. 
 
 ![Observer pattern UML class diagram][def]
 
-
-We have two interfaces **Subject** and **Observer**. Other classes are concrete implementation of these Interfaces e.g. ConcreteSubject and ConcreteObserver. While Interfaces will provide us with a blueprint, concrete implementation of these interfaces will actually implement the methods of the Interface.
+We have two interfaces **Subject** and **Observer**. Other classes are concrete implementation of these Interfaces e.g. ConcreteSubject and ConcreteObserver. While Interfaces will provide us with a blueprint, concrete implementation of these interfaces will actually implement the methods of the Interfaces.
 
 **Subject** has one attribute and three methods. While the attribute **`observers`** is a list of **Observer** instances, the methods do followings
-1. **`addObserver`**: let an observer register itself for notifications from the **Subject**. After an **Observer** being added to the subjects observer list it will be notfied on the state changes of the **Subject**.
+1. **`addObserver`**: let an observer register itself for notifications from the **Subject**. After an **Observer** being added to the subject's observer list it will be notfied on the state changes of the **Subject**.
 2. **`removeObserver`**: if the observer does not want to listen to the changes of the **Subject**, it can remove itself from the list of observers and it will not be bothered anymore.
 3. **`notifyObservers`**: the function that will do the work of notifying the subject's **observers**.
 
-Any and all classes that want to act as a **Subject** will implement above methods. 
+Any and all classes that want to act as a **Subject** must implement above methods. 
 
 Now lets consider the **Observer** interface. It has one method **`update`**. Concrete observer classes will have to implement this method.
 
-1. **update**: this method will be called from the **Subject**'s **`notifyObservers`** method to let the observer know of a data/state change in **Subject**. This is our channel of notification. More 
+1. **update**: this method will be called from the **Subject**'s **`notifyObservers`** method to let the observer know of an attribute/state change in **Subject**. This is our channel of notification.
 
+
+Now that we have seen the code organization lets move on to the actual code. 
 
 ## Example Code for Observer pattern
 
-Our goal is to design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
+Before coding let's restate our goal, design a smart home system that will have rooms with security camera and lights. These light and camera will be responsive to the presence of human in the room. If there is human in the room the camera will start monitoring while light will be lighting. So, both Camera and light are interested to know when there is a change in number of persons in the room. 
 
 From above discussion it might be already clear to us observers are **`Light`** and **`Camera`**. And they will observe the state of the room. **`Room`** is our subject. Whenever state of the room changes, light and camera will be notified. 
 
+So, our examples will be in python. Python doesn't have the concept of Interface. We can achieve the same using its Abstract Class concept. A brief on abstract class is [here](https://medium.com/@kbashar/strategy-pattern-with-python-1aeb5ec00208), look for the **Abstract Class in Python** section of the article. We will skip Abstract class related discussion here, as the article already got quite large. 
 
-So, our examples will be in python. Python doesn't have the idea of Interface. We can achieve the same using its Abstract Class concept. A brief on abstract class is [here]() and you may check this. We will skip Abstract class related discussion here. 
-
-### Interfaces
+### Interfaces aka Abstract classes
 So, first we will design our **`Subject`** and **`Observer`** Interfaces aka Abstract classes. 
 
 ```python 
@@ -108,7 +133,7 @@ These classes are blueprint for our concrete classes. All abstract methods will 
 
 ### Concrete Classes
 
-Let's implement these class in accordance with the abstract classes we have defined earlier. The implementation is kept simple and comments are added. Hope this will be easy to follow.
+We have one **`Subject`** class **`Room`**. This class will implement all three methods of the **`Subject`** interface and two other methods to change and access its state. The implementation is kept simple and in-line comments are added. Hope this will be easy to follow.
 
 ```python
 
@@ -132,13 +157,13 @@ class Room(Subject):
 
     # class specific methods
 
-    def setPerson(self, person: int):
+    def setPerson(self, person: int):  # change the state
         self._number_of_persons = person
 
         # state has changed lets notify the observers
         self.notifyObservers()
 
-    def getPerson(self):
+    def getPerson(self):  # access the state
         return self._number_of_persons
 
 ```
@@ -146,7 +171,7 @@ class Room(Subject):
 Apart from implementing 3 methods (`addObserver`, `removeObserver` and `notifyObservers`) from the **`Subject`** abstract class it has two extra methods i.e. `setPerson` and `getPerson`. These methods let outside code update or fetch the state of the **`Room`**. These are not mandatory for the pattern but necessary for the class to function in our context.
 
 
-Now let's code observers. We have two observers `Light` and `Camera` classes, that will need to first register themselves to the Room subject and implement the **`update`** method logic to response to the change in state of the room. 
+Now let's code concrete observers. We have two observers `Light` and `Camera` classes, they will  first register themselves to the **`Room`** subject's observers list through `addObserver` and implement the **`update`** method logic to response to the change in state of the **`Room`**. 
 
 ```python
 class Light(Observer):
@@ -158,9 +183,9 @@ class Light(Observer):
         # register itself for door state change observation
         self._room.addObserver(self)
 
-    def update(self):
+    def update(self):  # state of the room has changed
 
-        # state of the room has changed
+        # access the state from the subject
         number_of_persons = self._room.getPerson()
 
         # take some actions based on changed states
@@ -172,7 +197,7 @@ class Light(Observer):
 
 
 ```python
-class SecurityCamera(Observer):
+class Camera(Observer):
     def __init__(self, room: Room):
         print("Initializing Security Camera!")
         self._room = room
@@ -180,8 +205,8 @@ class SecurityCamera(Observer):
         # register itself for door state change observation
         self._room.addObserver(self)
 
-    def update(self):
-        # state of the room has changed
+    def update(self):  # state of the room has changed
+        # access the state from the subject
         number_of_persons = self._room.getPerson()
 
         # take some actions based on changed states
@@ -192,7 +217,7 @@ class SecurityCamera(Observer):
 ```  
 
 Now lets add the calling code. For demonastration purpose we will put this code in main calling thread. 
-First we initialize the **`Room`** instance and with that instance initialize the **`Light`** and **`SecurityCamera`** instances. To update the the number of persons in the room we call `room.setState()` method and in turn this will notify and update the state of `light` and `camera`. 
+First we initialize the **`Room`** instance and use that instance to initialize the **`Light`** and **`Camera`** instances. To update the the number of persons in the room we call `room.setState()` method and in turn this will notify and update the state of `light` and `camera`. 
 
 ```python
 
@@ -200,12 +225,11 @@ if __name__ == "__main__":
     room = Room()
 
     light = Light(room)
-    camera = SecurityCamera(room)
+    camera = Camera(room)
 
     room.setPerson(1)
     room.setPerson(0)
     room.setPerson(5)
-    room.setPerson(2)
 
 ```
 
@@ -221,11 +245,20 @@ Light: Shutting down. 0 persons in the room.
 Camera: Shutting down. 0 persons in the room.
 Light: Keep running. 5 persons in the room.
 Camera: Keep running. 5 persons in the room.
-Light: Keep running. 2 persons in the room.
-Camera: Keep running. 2 persons in the room.
 ```
 
 Full code is available here in [this github repo](https://github.com/kBashar/writings/tree/main/design_patterns/observer_pattern).
+
+## Wrapping up  
+
+Observer pattern is a handy toolkit to design and work with reactive systems. Definitely mastering a patterns comes not only from understanding the idea behind it but using and implementing it in systems as well. Mastering this pattern will help us to build scalable and modular software systems. Before wrapping up couple of  points,
+
+1. When working in multi-threading system we should code keep thread safety in mind during implementing observer pattern.
+2. If real-time update is not necessary observer pattern might not be a good fit. 
+3. There are variations of this pattern, not all of them use the same OOP structure but the essence is same. 
+4. Observer pattern is slightly different from publish-subscribe pattern as there is no message bus component here, message is sent directly to the observer.
+
+
 
 
 [def]: ./imgs/observer_class_diagram.png
