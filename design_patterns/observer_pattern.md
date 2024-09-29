@@ -62,7 +62,7 @@ And here comes the observer pattern, suggesting us a loosely coupled code organi
 
 Now is a good time to take a look at the UML class diagram of **observer pattern**.
 
-## Class Diagram
+## UML Class Diagram
 
 Observer patterns UML class diagram will clarify the relation and interaction between **`subject`** and **`observers`** more. Let's take a look. 
 
@@ -132,18 +132,23 @@ We have one **`Subject`** class **`Room`**. This class will implement all three 
 class Room(Subject):
 
     def __init__(self):
-        self._observers = list()  # initialize the observers list
+        # initialize the observers list
+        self._observers = list()  
 
-        self._number_of_persons = 0  # initialize the room with no person inside the room.
+        # initialize the room with no person inside the room.
+        self._number_of_persons = 0 
         print("Initiated an empty room!")
 
-    def addObserver(self, observer: Observer):  # adds observer to the list
+    # adds observer to the list
+    def addObserver(self, observer: Observer):
         self._observers.append(observer)
 
-    def removeObserver(self, observer: Observer): # removes observer from the list
+    # removes observer from the list
+    def removeObserver(self, observer: Observer):
         self._observers.remove(observer)
 
-    def notifyObservers(self):  # iterate through all listed observers and call their update method to notify them. 
+    # iterate through all listed observers and call their update method to notify them. 
+    def notifyObservers(self):  
         for observer in self._observers:
             observer.update()
 
